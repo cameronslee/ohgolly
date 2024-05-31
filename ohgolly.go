@@ -11,35 +11,37 @@ import (
 
 const DDG string = "https://html.duckduckgo.com/html/?q="
 
-func scrape(search_query string) {
+func scrape(search_query string) []Result {
+	var res []Result
 	c := colly.NewCollector(
 		colly.AllowedDomains("html.duckduckgo.com"),
 		colly.Async(true),
 	)
 
-	// On every a element which has href attribute call callback
+	// callback
 	c.OnHTML("h2.result__title a.result__a", func(e *colly.HTMLElement) {
 		link := e.Attr("href")
-		// Print link
 		fmt.Printf("Link found: %q -> %s\n", e.Text, link)
+		temp := Result{Title: e.Text, Link: link}
+		res = append(res, temp)
 	})
 
-	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
 		fmt.Println("Visiting", r.URL.String())
 	})
 
-	// Start scraping
+	// scrape
 	c.Visit(DDG + search_query)
 
 	c.Wait()
+
+	return res
 }
 
-func NewResultsHandler() ResultsHandler {
-	// Replace this in-memory function with a call to a database.
+func NewResultsHandler(search_query string) ResultsHandler {
 	resultsGetter := func() (result []Result, err error) {
 
-		return []Result{{Title: "templ", Link: "author"}}, nil
+		return scrape(search_query), nil
 	}
 	return ResultsHandler{
 		GetResults: resultsGetter,
@@ -68,13 +70,9 @@ type Result struct {
 }
 
 func main() {
-	// Use a template that doesn't take parameters.
 	http.Handle("/", templ.Handler(home()))
+	http.Handle("/results", NewResultsHandler("golang"))
 
-	// Use a template that accesses data or handles form posts.
-	http.Handle("/results", NewResultsHandler())
-
-	// Start the server.
 	fmt.Println("listening on http://localhost:8090")
 	if err := http.ListenAndServe("localhost:8090", nil); err != nil {
 		log.Printf("error listening: %v", err)
