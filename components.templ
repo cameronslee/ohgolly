@@ -1,0 +1,62 @@
+package main
+
+import "fmt"
+import "time"
+
+templ headerTemplate(name string) {
+	<header data-testid="headerTemplate">
+		<h1>{ name }</h1>
+	</header>
+}
+
+templ footerTemplate() {
+	<footer data-testid="footerTemplate">
+		<div>&copy; { fmt.Sprintf("%d", time.Now().Year()) }</div>
+	</footer>
+}
+
+templ navTemplate() {
+	<nav data-testid="navTemplate">
+		<ul>
+			<li><a href="/">Home</a></li>
+			<li><a href="/results">Results</a></li>
+		</ul>
+	</nav>
+}
+
+templ layout(name string) {
+	<html>
+		<head><title>{ name }</title></head>
+		<body>
+			@headerTemplate(name)
+			@navTemplate()
+			<main>
+				{ children... }
+			</main>
+		</body>
+		@footerTemplate()
+	</html>
+}
+
+templ resultsTemplate(results []Result) {
+	<div data-testid="resultsTemplate">
+		for _, r := range results{
+			<div data-testid="resultsTemplateResult">
+				<div data-testid="resultsTemplateResultTitle">{ r.Title }</div>
+				<div data-testid="resultsTemplateResultLink">{ r.Link }</div>
+			</div>
+		}
+	</div>
+}
+
+templ home() {
+	@layout("Home") {
+		<div data-testid="homeTemplate">ohgolly</div>
+	}
+}
+
+templ results(results []Result) {
+	@layout("Results") {
+		@resultsTemplate(results)
+	}
+}
