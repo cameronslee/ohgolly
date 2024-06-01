@@ -40,7 +40,6 @@ func scrape(search_query string) []Result {
 
 func NewResultsHandler(search_query string) ResultsHandler {
 	resultsGetter := func() (result []Result, err error) {
-
 		return scrape(search_query), nil
 	}
 	return ResultsHandler{
@@ -70,11 +69,24 @@ type Result struct {
 }
 
 func main() {
+	//mux := http.NewServeMux()
 	http.Handle("/", templ.Handler(home()))
-	http.Handle("/results", NewResultsHandler("golang"))
+	//http.Handle("/results/", NewResultsHandler("golang"))
 
-	fmt.Println("listening on http://localhost:8090")
-	if err := http.ListenAndServe("localhost:8090", nil); err != nil {
+	http.DefaultServeMux.HandleFunc("/results", func(w http.ResponseWriter, r *http.Request) {
+		queryValue := r.URL.Query().Get("q")
+		log.Println("Query parameter value:", queryValue)
+		res, _ := NewResultsHandler(queryValue).GetResults()
+
+		for i := 0; i < len(res); i++ {
+			temp := res[i].Title
+			out := []byte(temp)
+			w.Write(out)
+		}
+	})
+
+	fmt.Println("listening on http://localhost:8000")
+	if err := http.ListenAndServe("localhost:8000", nil); err != nil {
 		log.Printf("error listening: %v", err)
 	}
 }

@@ -3,6 +3,8 @@ package main
 import "fmt"
 import "time"
 
+var handle = templ.NewOnceHandle()
+
 templ headerTemplate(name string) {
 	<header data-testid="headerTemplate">
 		<h1>{ name }</h1>
@@ -16,10 +18,22 @@ templ footerTemplate() {
 }
 
 templ navTemplate() {
+	@handle.Once() {
+		<script type="text/javascript">
+			function navigateOnChange(event) {
+				// Get the new value of the input (if needed)
+				const newValue = event.target.value;
+
+				// Navigate to the desired route
+				window.location.href = '/results/' + newValue;
+			}
+		</script>
+	}
 	<nav data-testid="navTemplate">
 		<ul>
 			<li><a href="/">Home</a></li>
 			<li><a href="/results">Results</a></li>
+			<input type="text" oninput="navigateOnChange(event)"></input>
 		</ul>
 	</nav>
 }
