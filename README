@@ -1,0 +1,12 @@
+remember google realtime search?
+
+were bringing that back with ohgolly
+
+ohgolly is a clean search interface built on top of DDG.
+
+built with the goth stack (go, templ, htmx)
+
+sources:
+- https://stackoverflow.com/questions/37012469/duckduckgo-api-getting-search-results
+- https://go-colly.org/docs/examples/basic/
+- https://arxiv.org/pdf/2405.05329

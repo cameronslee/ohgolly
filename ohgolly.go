@@ -81,7 +81,7 @@ func main() {
 		res.View(w, r, ViewProps{data})
 	})
 
-	fmt.Println("listening on http://localhost:8000")
+	fmt.Println("listening on http://localhost:8080")
 	if err := http.ListenAndServe("localhost:8080", nil); err != nil {
 		log.Printf("error listening: %v", err)
 	}
