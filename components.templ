@@ -21,27 +21,52 @@ templ navTemplate() {
 	@handle.Once() {
 		<script type="text/javascript">
 			function navigateOnChange(event) {
-				// Get the new value of the input (if needed)
-				const newValue = event.target.value;
+				let input = document.getElementById('search_input');
+				let timeout = null;
 
-				// Navigate to the desired route
-				window.location.href = '/results/' + newValue;
+				input.addEventListener('keyup', function (e) {
+				    clearTimeout(timeout);
+
+				    timeout = setTimeout(function () {
+					console.log('Input Value:', input.value);
+
+					// Get the new value of the input 
+					const newValue = event.target.value;
+
+					// Navigate to the desired route
+					window.location.href = '/results?q=' + newValue;
+					    }, 1000);
+				});
 			}
 		</script>
 	}
+	
 	<nav data-testid="navTemplate">
 		<ul>
 			<li><a href="/">Home</a></li>
 			<li><a href="/results">Results</a></li>
-			<input type="text" oninput="navigateOnChange(event)"></input>
 		</ul>
+		<form >
+			<input id="search_input" type="search" oninput="navigateOnChange(event)" autofocus></input>
+		</form>
 	</nav>
 }
 
 templ layout(name string) {
 	<html>
-		<head><title>{ name }</title></head>
-		<body>
+		<head><title id="title">{ name }</title></head>
+		<script type="text/javascript">
+			function setField()  {
+				console.log("foo");
+				// get search string
+				var qString = location.search;
+				if (qString.indexOf('q') != -1) {
+					var data = qString.substring(qString.indexOf('=') + 1, qString.length);
+					document.getElementById("search_input").value = decodeURIComponent(data)
+				}
+			}
+		</script>
+		<body onload="setField()">
 			@headerTemplate(name)
 			@navTemplate()
 			<main>

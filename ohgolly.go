@@ -71,22 +71,26 @@ type Result struct {
 func main() {
 	//mux := http.NewServeMux()
 	http.Handle("/", templ.Handler(home()))
-	//http.Handle("/results/", NewResultsHandler("golang"))
+	http.Handle("/test", NewResultsHandler("golang"))
 
 	http.DefaultServeMux.HandleFunc("/results", func(w http.ResponseWriter, r *http.Request) {
 		queryValue := r.URL.Query().Get("q")
 		log.Println("Query parameter value:", queryValue)
-		res, _ := NewResultsHandler(queryValue).GetResults()
-
-		for i := 0; i < len(res); i++ {
-			temp := res[i].Title
-			out := []byte(temp)
-			w.Write(out)
-		}
+		res := NewResultsHandler(queryValue)
+		data, _ := res.GetResults()
+		res.View(w, r, ViewProps{data})
 	})
 
 	fmt.Println("listening on http://localhost:8000")
-	if err := http.ListenAndServe("localhost:8000", nil); err != nil {
+	if err := http.ListenAndServe("localhost:8080", nil); err != nil {
 		log.Printf("error listening: %v", err)
 	}
+}
+
+type ViewProps struct {
+	Results []Result
+}
+
+func (h *ResultsHandler) View(w http.ResponseWriter, r *http.Request, props ViewProps) {
+	results(props.Results).Render(r.Context(), w)
 }
